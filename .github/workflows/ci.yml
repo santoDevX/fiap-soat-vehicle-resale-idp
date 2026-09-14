@@ -1,4 +1,4 @@
-# Roda em todo Pull Request, ANTES do merge. So valida, nunca faz deploy.
+# Roda em todo Pull Request, ANTES do merge.
 name: CI
 
 on:
@@ -15,7 +15,6 @@ jobs:
         run: python3 -m json.tool keycloak/realm-export.json > /dev/null
 
       - name: Build image (sem push)
-        working-directory: keycloak
         run: docker build -t idp-validate .
 
       - name: Terraform format check
