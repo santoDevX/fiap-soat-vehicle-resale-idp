@@ -1,0 +1,21 @@
+# Sem Postgres: o Keycloak em start-dev usa H2 embutido.
+# Isso significa que os dados (inclusive usuarios criados via Admin API)
+# somem quando o container reinicia -- o realm base sempre volta ao mesmo
+# estado, porque ele e reimportado do JSON toda vez. Bom para testes
+# repetiveis, ruim se voce precisar de dados que sobrevivem a um restart.
+services:
+  vehicle-keycloak:
+    image: quay.io/keycloak/keycloak:26.7
+    command: start-dev --import-realm
+    environment:
+      # Admin do CONSOLE do Keycloak (realm master), diferente do usuario
+      # admin.demo que fica dentro do realm vehicle-resale.
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin_local_only
+      # Resolvidos pelos placeholders ${env.*} do realm-export.json
+      SEED_ADMIN_PASSWORD: demo123
+      PROVISIONING_CLIENT_SECRET: local-provisioning-secret
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./keycloak:/opt/keycloak/data/import

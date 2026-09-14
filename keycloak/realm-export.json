@@ -1,0 +1,54 @@
+{
+  "realm": "vehicle-resale",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": true,
+  "roles": {
+    "realm": [
+      { "name": "ADMIN", "description": "Manages vehicles for sale" },
+      { "name": "CUSTOMER", "description": "Buys vehicles" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "vehicle-resale-client",
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "redirectUris": ["*"]
+    },
+    {
+      "clientId": "vehicle-resale-provisioning",
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "secret": "${env.PROVISIONING_CLIENT_SECRET}",
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true
+    }
+  ],
+  "users": [
+    {
+      "username": "admin.demo",
+      "email": "admin.demo@vehicleresale.local",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        { "type": "password", "value": "${env.SEED_ADMIN_PASSWORD}", "temporary": false }
+      ],
+      "realmRoles": ["ADMIN"]
+    },
+    {
+      "username": "service-account-vehicle-resale-provisioning",
+      "enabled": true,
+      "serviceAccountClientId": "vehicle-resale-provisioning",
+      "clientRoles": {
+        "realm-management": ["manage-users", "view-users"]
+      }
+    }
+  ]
+}
