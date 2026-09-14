@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # Varre os arquivos .tf em busca de falhas de segurança de infraestrutura
       - name: Run tfsec
@@ -27,6 +27,6 @@ jobs:
 
       # Envia os resultados do Terraform para o painel do GitHub
       - name: Upload tfsec SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: tfsec.sarif
