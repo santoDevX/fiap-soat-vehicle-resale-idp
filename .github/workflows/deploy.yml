@@ -6,9 +6,10 @@ name: Deploy
 on:
   push:
     branches: [main]
+  workflow_dispatch: # Habilita o disparo manual
 
 env:
-  AWS_REGION: us-east-1
+  AWS_REGION: us-east-2
   ECR_REPOSITORY: vehicle-resale-idp
 
 jobs:
