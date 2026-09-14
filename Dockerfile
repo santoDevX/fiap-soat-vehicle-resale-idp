@@ -3,7 +3,7 @@ FROM quay.io/keycloak/keycloak:26.7
 
 # Coloca o realm no diretorio que o Keycloak varre automaticamente
 # quando recebe a flag --import-realm (confirmado em keycloak.org/server/containers)
-COPY realm-export.json /opt/keycloak/data/import/
+COPY keycloak/realm-export.json /opt/keycloak/data/import/
 
 # start-dev (nao start) e a decisao central deste repo:
 # - nao exige hostname, TLS nem proxy headers configurados
