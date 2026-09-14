@@ -1,0 +1,26 @@
+# Roda em todo Pull Request, ANTES do merge. So valida, nunca faz deploy.
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate realm JSON
+        run: python3 -m json.tool keycloak/realm-export.json > /dev/null
+
+      - name: Build image (sem push)
+        working-directory: keycloak
+        run: docker build -t idp-validate .
+
+      - name: Terraform format check
+        working-directory: infra
+        run: |
+          terraform init -backend=false
+          terraform fmt -check
+          terraform validate
