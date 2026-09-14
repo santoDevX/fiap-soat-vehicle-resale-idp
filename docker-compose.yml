@@ -4,8 +4,9 @@
 # estado, porque ele e reimportado do JSON toda vez. Bom para testes
 # repetiveis, ruim se voce precisar de dados que sobrevivem a um restart.
 services:
-  vehicle-keycloak:
+  kc:
     image: quay.io/keycloak/keycloak:26.7
+    container_name: vehicle-keycloak
     command: start-dev --import-realm
     environment:
       # Admin do CONSOLE do Keycloak (realm master), diferente do usuario
