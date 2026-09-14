@@ -1,10 +1,6 @@
 # Roda automaticamente a cada push/merge na branch main.
-# So faz build + push da imagem. NAO roda terraform apply -- essa parte
-# voce faz manualmente da sua maquina (decisao tomada por causa do prazo,
-# ver secao "Decisao: state do Terraform" no fim desta pagina).
 # O App Runner tem auto_deployments_enabled = true (apprunner.tf), entao
-# ele detecta a nova imagem no ECR e redeploya sozinho -- isso e o que
-# satisfaz "deploy automatizado" no enunciado do trabalho.
+# ele detecta a nova imagem no ECR e redeploya sozinho.
 name: Deploy
 
 on:
@@ -19,7 +15,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
