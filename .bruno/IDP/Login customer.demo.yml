@@ -1,0 +1,30 @@
+info:
+  name: Login customer.demo
+  type: http
+  seq: 1
+
+http:
+  method: post
+  url: http://localhost:8081/realms/vehicle-resale/protocol/openid-connect/token
+  headers:
+    - name: Content-Type
+      value: application/x-www-form-urlencoded
+  body:
+    type: form-urlencoded
+    data:
+      - name: client_id
+        value: vehicle-resale-client
+      - name: username
+        value: customer.demo
+      - name: password
+        value: demo123
+      - name: grant_type
+        value: password
+  auth: inherit
+
+settings:
+  encodeUrl: false
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
