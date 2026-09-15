@@ -16,7 +16,7 @@ variable "project_name" {
 # sensitive = true faz o Terraform esconder o valor nos logs
 # e no output de "terraform plan", mas ainda fica visivel dentro
 # do arquivo de state -- por isso o state tambem precisa ficar fora do Git.
-variable "seed_admin_password" {
+variable "seed_password" {
   description = "Senha do usuario admin.demo dentro do realm vehicle-resale"
   type        = string
   sensitive   = true
