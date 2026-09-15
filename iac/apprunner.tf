@@ -29,8 +29,7 @@ resource "aws_apprunner_service" "this" {
         runtime_environment_variables = {
           KC_BOOTSTRAP_ADMIN_USERNAME = "admin"
           KC_BOOTSTRAP_ADMIN_PASSWORD = var.kc_bootstrap_admin_password
-          SEED_ADMIN_PASSWORD         = var.seed_admin_password
-          PROVISIONING_CLIENT_SECRET  = var.provisioning_client_secret
+          SEED_PASSWORD               = var.seed_password
         }
       }
     }
