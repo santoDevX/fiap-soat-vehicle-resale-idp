@@ -1,62 +1,47 @@
 # fiap-soat-vehicle-resale-idp
 
-Identity Provider (Keycloak) totalmente apartado da API de vendas, atendendo ao requisito do enunciado de que o cadastro e a autorização de compradores fiquem separados dos dados transacionais.
+Identity Provider standalone: Keycloak self-hosted, com autenticação e emissão de JWT via OAuth2/OIDC.
 
 ## O que é
 
-Keycloak self-hosted, com um realm próprio (`vehicle-resale`), dois roles de negócio (`ADMIN`, `CUSTOMER`) e dois clients OAuth2:
+Keycloak com um realm próprio (`vehicle-resale`), dois roles de negócio (`ADMIN`, `CUSTOMER`) e um client OAuth2 (`vehicle-resale-client`, público, usado por qualquer consumidor: Postman, frontend, outra API, para autenticar e obter um JWT).
 
-- `vehicle-resale-client`: usado por qualquer consumidor (Postman, frontend) para autenticar e obter um JWT.
-- `vehicle-resale-provisioning`: usado só para criar usuários via Admin REST API, nunca pela API de vendas.
+O realm já vem com dois usuários seed:
 
-O repositório [`fiap-soat-vehicle-resale-api`](#) não tem nenhum código de autenticação. Ele só valida o JWT emitido aqui, via JWKS.
+| username | role | senha |
+|---|---|---|
+| `admin.demo` | `ADMIN` | `SEED_PASSWORD` |
+| `customer.demo` | `CUSTOMER` | `SEED_PASSWORD` |
+
+Self-registration está habilitado (`registrationAllowed: true`), então novos usuários também podem se cadastrar direto pelo Keycloak.
+
+## Como foi implementado
+
+- **Keycloak** roda em modo `start-dev`, com banco H2 embutido (sem dependência externa) e o realm importado automaticamente a partir de `keycloak/realm-export.json`.
+- **CI** (`.github/workflows/ci.yml`): roda em todo Pull Request, valida o JSON do realm, builda a imagem (sem push) e roda `terraform fmt`/`terraform validate` em `/iac`.
+- **Security scan** (`.github/workflows/security.yml`): roda em push e PR para `main`, escaneia o `/iac` com Trivy e publica o resultado no painel de segurança do GitHub.
+- **Deploy** (`.github/workflows/deploy.yml`): a cada push em `main`, builda a imagem e dá push para o ECR.
+- **Infraestrutura** (`/iac`, Terraform): provisiona tudo na AWS.
 
 ## Como rodar localmente
 
 ```bash
-docker compose up --build
+docker compose up -d
 ```
 
-O Keycloak sobe em `http://localhost:8081`, já com o realm `vehicle-resale` importado.
+O Keycloak sobe em `http://localhost:8081`, já com o realm `vehicle-resale` importado e `SEED_PASSWORD=demo123`.
 
 ## Como testar
 
-### 1. Criar um cliente (cadastro)
-
-```bash
-# Obter token de servico do client de provisioning
-curl -X POST http://localhost:8081/realms/vehicle-resale/protocol/openid-connect/token \
--H "Content-Type: application/x-www-form-urlencoded" \
--d "client_id=vehicle-resale-provisioning" \
--d "client_secret=local-provisioning-secret" \
--d "grant_type=client_credentials"
-
-# Criar o usuario (troque <ADMIN_TOKEN> pelo access_token retornado acima)
-curl -X POST http://localhost:8081/admin/realms/vehicle-resale/users \
--H "Authorization: Bearer <ADMIN_TOKEN>" \
--H "Content-Type: application/json" \
--d '{"username":"cliente1","email":"cliente1@teste.com","enabled":true,"credentials":[{"type":"password","value":"senha123","temporary":false}]}'
-```
-
-Depois, atribua o role `CUSTOMER` ao usuário criado via Admin Console (`http://localhost:8081`, login `admin`/`admin_local_only`) ou via a API de role-mapping do Admin REST API.
-
-### 2. Login do cliente
+Login com um dos usuários seed:
 
 ```bash
 curl -X POST http://localhost:8081/realms/vehicle-resale/protocol/openid-connect/token \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -d "client_id=vehicle-resale-client" \
-  -d "username=cliente1" \
-  -d "password=senha123" \
+  -d "username=customer.demo" \
+  -d "password=demo123" \
   -d "grant_type=password"
 ```
 
-O `access_token` retornado é o JWT usado no header `Authorization: Bearer` da API de vendas.
-
-## Deploy
-
-Automatizado via GitHub Actions (`.github/workflows/deploy.yml`): build da imagem, push para o ECR, `terraform apply` em `/infra`, deploy no AWS App Runner.
-
-## Decisão de arquitetura
-
-RDS público, protegido por senha forte e security group restrito à porta 5432. Trade-off aceito pelo prazo do projeto — ver `docs/adr/` (se presente) para detalhes e a alternativa correta (RDS em subnet privada com VPC connector).
+O `access_token` retornado é um JWT assinado pelo realm `vehicle-resale`.
