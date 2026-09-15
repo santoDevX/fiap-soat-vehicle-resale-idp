@@ -19,14 +19,16 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v7
 
-      # Varre os arquivos .tf em busca de falhas de segurança de infraestrutura
-      - name: Run tfsec
-        uses: aquasecurity/tfsec-sarif-action@v0.1.4
+      # Varre os arquivos .tf em busca de falhas de segurança de infraestrutura.
+      - name: Run Trivy scanner (IaC)
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
-          sarif_file: tfsec.sarif
+          scan-type: "config"
+          format: "sarif"
+          output: "trivy-results.sarif"
 
       # Envia os resultados do Terraform para o painel do GitHub
-      - name: Upload tfsec SARIF
+      - name: Upload Trivy SARIF
         uses: github/codeql-action/upload-sarif@v4
         with:
-          sarif_file: tfsec.sarif
+          sarif_file: trivy-results.sarif
