@@ -22,6 +22,11 @@ http:
         value: password
   auth: inherit
 
+runtime:
+  scripts:
+    - type: after-response
+      code: bru.setVar("customer_token", res.body.access_token);
+
 settings:
   encodeUrl: false
   timeout: 0
