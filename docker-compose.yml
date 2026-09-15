@@ -14,8 +14,7 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin_local_only
       # Resolvidos pelos placeholders ${env.*} do realm-export.json
-      SEED_ADMIN_PASSWORD: demo123
-      PROVISIONING_CLIENT_SECRET: local-provisioning-secret
+      SEED_PASSWORD: demo123
     ports:
       - "8081:8080"
     volumes:

@@ -6,7 +6,20 @@
   "roles": {
     "realm": [
       { "name": "ADMIN", "description": "Manages vehicles for sale" },
-      { "name": "CUSTOMER", "description": "Buys vehicles" }
+      { "name": "CUSTOMER", "description": "Buys vehicles" },
+      {
+        "name": "default-roles-vehicle-resale",
+        "description": "Role nativa do Keycloak que gerencia os padrões",
+        "composite": true,
+        "clientRole": false,
+        "composites": {
+          "realm": [
+            "CUSTOMER",
+            "offline_access",
+            "uma_authorization"
+          ]
+        }
+      }
     ]
   },
   "clients": [
@@ -15,20 +28,9 @@
       "publicClient": true,
       "protocol": "openid-connect",
       "standardFlowEnabled": false,
-      "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": true,
       "serviceAccountsEnabled": false,
       "redirectUris": ["*"]
-    },
-    {
-      "clientId": "vehicle-resale-provisioning",
-      "publicClient": false,
-      "protocol": "openid-connect",
-      "secret": "${env.PROVISIONING_CLIENT_SECRET}",
-      "standardFlowEnabled": false,
-      "implicitFlowEnabled": false,
-      "directAccessGrantsEnabled": false,
-      "serviceAccountsEnabled": true
     }
   ],
   "users": [
@@ -38,17 +40,19 @@
       "enabled": true,
       "emailVerified": true,
       "credentials": [
-        { "type": "password", "value": "${env.SEED_ADMIN_PASSWORD}", "temporary": false }
+        { "type": "password", "value": "${env.SEED_PASSWORD}", "temporary": false }
       ],
       "realmRoles": ["ADMIN"]
     },
     {
-      "username": "service-account-vehicle-resale-provisioning",
+      "username": "customer.demo",
+      "email": "customer.demo@vehicleresale.local",
       "enabled": true,
-      "serviceAccountClientId": "vehicle-resale-provisioning",
-      "clientRoles": {
-        "realm-management": ["manage-users", "view-users"]
-      }
+      "emailVerified": true,
+      "credentials": [
+        { "type": "password", "value": "${env.SEED_PASSWORD}", "temporary": false }
+      ],
+      "realmRoles": ["CUSTOMER"]
     }
   ]
 }
