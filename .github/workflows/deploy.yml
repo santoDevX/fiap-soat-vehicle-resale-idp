@@ -1,19 +1,16 @@
-# Roda automaticamente a cada push/merge na branch main.
-# O App Runner tem auto_deployments_enabled = true (apprunner.tf), entao
-# ele detecta a nova imagem no ECR e redeploya sozinho.
 name: Deploy
 
 on:
   push:
     branches: [main]
-  workflow_dispatch: # Habilita o disparo manual
+  workflow_dispatch:
 
 env:
   AWS_REGION: us-east-2
   ECR_REPOSITORY: vehicle-resale-idp
 
 jobs:
-  deploy:
+  build-push:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -26,7 +23,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Login to ECR
+      - name: Login to Amazon ECR
         id: ecr-login
         uses: aws-actions/amazon-ecr-login@v2
 
@@ -36,6 +33,9 @@ jobs:
           aws ecr create-repository --repository-name ${{ env.ECR_REPOSITORY }} --region ${{ env.AWS_REGION }}
 
       - name: Build and push image
+        env:
+          IMAGE: ${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}
         run: |
-          docker build -t ${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest .
-          docker push ${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+          docker build -t $IMAGE:latest -t $IMAGE:${{ github.sha }} .
+          docker push $IMAGE:latest
+          docker push $IMAGE:${{ github.sha }}

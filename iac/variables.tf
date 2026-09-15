@@ -22,12 +22,6 @@ variable "seed_password" {
   sensitive   = true
 }
 
-variable "provisioning_client_secret" {
-  description = "Secret do client vehicle-resale-provisioning"
-  type        = string
-  sensitive   = true
-}
-
 variable "kc_bootstrap_admin_password" {
   description = "Senha do admin do CONSOLE do Keycloak (realm master, nao o admin.demo)"
   type        = string

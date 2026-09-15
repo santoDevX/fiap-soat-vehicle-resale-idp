@@ -2,7 +2,7 @@
   "realm": "vehicle-resale",
   "enabled": true,
   "sslRequired": "none",
-  "registrationAllowed": true,
+  "registrationAllowed": false,
   "roles": {
     "realm": [
       { "name": "ADMIN", "description": "Manages vehicles for sale" },
@@ -14,9 +14,7 @@
         "clientRole": false,
         "composites": {
           "realm": [
-            "CUSTOMER",
-            "offline_access",
-            "uma_authorization"
+            "CUSTOMER"
           ]
         }
       }
@@ -37,20 +35,24 @@
     {
       "username": "admin.demo",
       "email": "admin.demo@vehicleresale.local",
+      "firstName": "Admin",
+      "lastName": "Demo",
       "enabled": true,
       "emailVerified": true,
       "credentials": [
-        { "type": "password", "value": "${env.SEED_PASSWORD}", "temporary": false }
+        { "type": "password", "value": "${SEED_PASSWORD}", "temporary": false }
       ],
       "realmRoles": ["ADMIN"]
     },
     {
       "username": "customer.demo",
       "email": "customer.demo@vehicleresale.local",
+      "firstName": "Customer",
+      "lastName": "Demo",
       "enabled": true,
       "emailVerified": true,
       "credentials": [
-        { "type": "password", "value": "${env.SEED_PASSWORD}", "temporary": false }
+        { "type": "password", "value": "${SEED_PASSWORD}", "temporary": false }
       ],
       "realmRoles": ["CUSTOMER"]
     }

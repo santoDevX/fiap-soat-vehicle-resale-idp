@@ -1,0 +1,39 @@
+info:
+  name: Criar novo usuario
+  type: http
+  seq: 4
+
+http:
+  method: post
+  url: http://localhost:8081/admin/realms/vehicle-resale/users
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "username": "novo.usuario",
+        "email": "novo.usuario@teste.com",
+        "firstName": "Novo",
+        "lastName": "Usuario",
+        "enabled": true,
+        "emailVerified": true,
+        "credentials": [
+          {
+            "type": "password",
+            "value": "senha123",
+            "temporary": false
+          }
+        ]
+      }
+  auth:
+    type: bearer
+    token: "{{admin_token}}"
+
+settings:
+  encodeUrl: false
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
