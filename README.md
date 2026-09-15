@@ -45,3 +45,7 @@ curl -X POST http://localhost:8081/realms/vehicle-resale/protocol/openid-connect
 ```
 
 O `access_token` retornado é um JWT assinado pelo realm `vehicle-resale`.
+
+Os curls deste README funcionam do mesmo jeito em qualquer cliente REST (Bruno, Postman, Insomnia), é só montar o request equivalente.
+
+Também há uma coleção Bruno pronta em `.bruno/IDP/`, com os requests de login (`admin.demo`, `customer.demo`), obtenção de token de admin e criação de usuário via Admin REST API. Para importar: no Bruno, clique em "+" no canto superior esquerdo, "Open Collection" e selecione a pasta `.bruno` (ou `.bruno/IDP`) deste repositório.
