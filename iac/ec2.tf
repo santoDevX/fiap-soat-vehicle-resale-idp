@@ -62,6 +62,8 @@ resource "aws_instance" "idp" {
     seed_password               = var.seed_password
   })
 
+  user_data_replace_on_change = true
+
   # IMDSv2 obrigatorio: exige token pra consultar o metadata service,
   # mitigando SSRF que tentaria roubar credenciais da instance role.
   metadata_options {

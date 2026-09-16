@@ -65,44 +65,12 @@ jobs:
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Terraform init
-        working-directory: iac
-        run: terraform init -input=false
-
       - name: Terraform apply
-        id: tf
         working-directory: iac
         env:
           TF_VAR_seed_password: ${{ secrets.SEED_PASSWORD }}
           TF_VAR_kc_bootstrap_admin_password: ${{ secrets.KC_BOOTSTRAP_ADMIN_PASSWORD }}
           TF_VAR_ec2_ssh_public_key: ${{ secrets.EC2_SSH_PUBLIC_KEY }}
         run: |
+          terraform init -input=false
           terraform apply -auto-approve -input=false
-          echo "ip=$(terraform output -raw idp_public_ip)" >> "$GITHUB_OUTPUT"
-
-      - name: Wait for instance to finish booting
-        run: |
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > /tmp/deploy_key
-          chmod 600 /tmp/deploy_key
-          for i in $(seq 1 30); do
-            if ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 \
-                 -i /tmp/deploy_key ec2-user@"${{ steps.tf.outputs.ip }}" \
-                 'sudo cloud-init status --wait' 2>/dev/null; then
-              echo "Instância pronta"
-              rm -f /tmp/deploy_key
-              exit 0
-            fi
-            echo "Aguardando instância terminar o boot... ($i/30)"
-            sleep 10
-          done
-          echo "Timeout esperando a instância ficar pronta"
-          rm -f /tmp/deploy_key
-          exit 1
-
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ steps.tf.outputs.ip }}
-          username: ec2-user
-          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
-          script: /usr/local/bin/deploy-idp.sh

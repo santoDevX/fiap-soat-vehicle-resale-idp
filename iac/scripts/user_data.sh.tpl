@@ -7,12 +7,11 @@ systemctl enable docker
 systemctl start docker
 usermod -aG docker ec2-user
 
-# Script de deploy: usado aqui no boot e depois via SSH pelo deploy.yml do
-# GitHub Actions a cada push na main. Mantem a logica de deploy num unico
-# lugar em vez de duplicar entre user_data e o workflow.
+# Script de deploy: usado aqui no boot e depois via SSH manual, se precisar.
+# Mantem a logica de deploy num unico lugar em vez de duplicar.
 cat > /usr/local/bin/deploy-idp.sh <<'EOS'
 #!/bin/bash
-set -euxo pipefail
+set -euo pipefail
 
 AWS_REGION="${aws_region}"
 ECR_REPOSITORY="${ecr_repository}"
@@ -20,12 +19,28 @@ APP_PORT="${app_port}"
 KC_BOOTSTRAP_ADMIN_PASSWORD="${kc_bootstrap_admin_password}"
 SEED_PASSWORD="${seed_password}"
 
-ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text --region "$AWS_REGION")
+# Retry: logo apos o boot, a credencial da instance role pode levar alguns
+# segundos pra ficar disponivel via metadata. Sem isso, a primeira chamada
+# aws cli falha e o script inteiro morre (cloud-init reporta "error").
+retry() {
+  local attempts=10 delay=6 i=1
+  until "$@"; do
+    if [ "$i" -ge "$attempts" ]; then
+      echo "Falhou apos $attempts tentativas: $*" >&2
+      return 1
+    fi
+    echo "Tentativa $i/$attempts falhou, tentando de novo em $${delay}s: $*" >&2
+    sleep "$delay"
+    i=$((i + 1))
+  done
+}
+
+ACCOUNT_ID=$(retry aws sts get-caller-identity --query Account --output text --region "$AWS_REGION")
 ECR_REGISTRY="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
 
-aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$ECR_REGISTRY"
+retry bash -c "aws ecr get-login-password --region '$AWS_REGION' | docker login --username AWS --password-stdin '$ECR_REGISTRY'"
 
-docker pull "$ECR_REGISTRY/$ECR_REPOSITORY:latest"
+retry docker pull "$ECR_REGISTRY/$ECR_REPOSITORY:latest"
 
 docker stop vehicle-idp 2>/dev/null || true
 docker rm vehicle-idp 2>/dev/null || true
@@ -42,5 +57,5 @@ EOS
 
 chmod +x /usr/local/bin/deploy-idp.sh
 
-# Primeiro deploy acontece no boot da instancia
+# Primeiro (e, por enquanto, unico) deploy acontece no boot da instancia.
 /usr/local/bin/deploy-idp.sh

@@ -20,7 +20,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "1.9.5" # required version
+          terraform_version: "1.10.5" # backend.tf usa use_lockfile, que exige >= 1.10
 
       - name: Terraform format check
         working-directory: iac
