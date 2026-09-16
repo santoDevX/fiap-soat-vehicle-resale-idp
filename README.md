@@ -20,8 +20,8 @@ Self-registration está habilitado (`registrationAllowed: true`), então novos u
 - **Keycloak** roda em modo `start-dev`, com banco H2 embutido (sem dependência externa) e o realm importado automaticamente a partir de `keycloak/realm-export.json`.
 - **CI** (`.github/workflows/ci.yml`): roda em todo Pull Request, valida o JSON do realm, builda a imagem (sem push) e roda `terraform fmt`/`terraform validate` em `/iac`.
 - **Security scan** (`.github/workflows/security.yml`): roda em push e PR para `main`, escaneia o `/iac` com Trivy e publica o resultado no painel de segurança do GitHub.
-- **Deploy** (`.github/workflows/deploy.yml`): a cada push em `main`, builda a imagem e dá push para o ECR.
-- **Infraestrutura** (`/iac`, Terraform): provisiona tudo na AWS.
+- **Deploy** (`.github/workflows/deploy.yml`): a cada push em `main`, builda a imagem, dá push para o ECR e roda `terraform apply` em `/iac` (cria/atualiza EC2 que roda o container).
+- **Infraestrutura** (`/iac`, Terraform): provisiona tudo na AWS. State remoto em S3 (compartilhado com o projeto `fiap-soat-vehicle-resale-api`, key própria). O `apply` roda no runner do GitHub Actions.
 
 ## Como rodar localmente
 
