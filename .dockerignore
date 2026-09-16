@@ -1,0 +1,20 @@
+# Historico git nao e necessario no contexto de build
+.git
+.github
+
+# IDE e ferramentas locais
+.idea
+.bruno
+
+# Terraform nao e usado pelo build da imagem Keycloak
+iac
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+
+# Segredos locais
+*.env
+
+# Docs nao entram na imagem
+*.md
