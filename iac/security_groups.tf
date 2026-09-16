@@ -3,6 +3,10 @@ resource "aws_security_group" "ec2" {
   description = "SG da EC2 que roda o Keycloak" # AWS exige description em ASCII puro
   vpc_id      = data.aws_vpc.default.id
 
+  # trivy:ignore:AVD-AWS-0107 SSH aberto pra internet de proposito: quem
+  # conecta e o runner do GitHub Actions, com IP dinamico a cada execucao.
+  # O acesso continua exigindo a chave privada (sem senha), decisao
+  # documentada em iac/README.md.
   ingress {
     description = "SSH"
     from_port   = 22
@@ -19,7 +23,11 @@ resource "aws_security_group" "ec2" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # trivy:ignore:AVD-AWS-0104 egress irrestrito de proposito: a instancia
+  # precisa alcancar a internet (ECR, repositorios do dnf) sem VPC
+  # endpoints dedicados, fora de escopo pra este projeto academico.
   egress {
+    description = "Todo trafego de saida"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
